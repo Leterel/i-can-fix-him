@@ -1,0 +1,28 @@
+# Fortschritt
+
+## 20.10.2026 — Projektidee aufgenommen
+
+Übergebene Spielideen, beide Modusvarianten, Stil und offene technische
+Entscheidungen im README gesichert. Noch keine Implementierung oder Tests.
+
+## 21.10.2026 — Offene Sandbox spielbar
+
+Gewählten Modus umgesetzt: lokal im Desktop-Browser ohne Abhängigkeiten oder
+Hosting. Frei begehbarer Betonbezirk mit Gebäudekollision und prozeduraler
+Pseudo-3D-Canvasgrafik. Vier ausdrücklich erwachsene, erfundene NPCs mit je drei
+Dialogentscheidungen und Erinnerungen an Begegnungen/Schubsereien.
+
+Energie, Geld, Chaos, Misstrauen und unterschiedliche gesetzte Grenzen wirken
+sichtbar auf die Schicht. Kostenlose Pause/Deeskalation, fragwürdige Geldinvestition,
+absurde Behörden-/Coachingdialoge, nichtgrafisches Schubsen mit Cooldown und
+sozialen Folgen. Hoher Chaoswert schließt den Kiosk, Misstrauen löst einmalig
+eine 12-Euro-Unruhepauschale aus. Wiederholtes Schubsen sperrt den Gesprächsweg.
+Drei Grenzen bei unterschiedlichen NPCs erlauben Feierabend und Weiterspielen;
+null Energie beendet die Schicht. Neustart verwirft alle Laufzeitdaten.
+
+Produktionslogik mit Node getestet. Chrome-Playwright-Probe benutzt tatsächliche
+WASD-/E-/F-/Dialogtasten: Bewegung, Gespräch, Geldausgabe, sichtbare Folgen,
+Neustart, drei unterschiedliche NPC-Grenzen, Ende und Weiterspielen bestanden.
+Keine JavaScript-Laufzeitfehler, 390px-Layout ohne horizontalen Überlauf.
+Desktop- und Dialogscreenshots visuell geprüft. Belege im aktuellen Chat unter
+outputs/spiel. Kein Touch-Spieltest, kein physisches Handy, kein öffentliches Hosting.
