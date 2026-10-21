@@ -3,7 +3,7 @@ import { mkdir } from 'node:fs/promises';
 import { resolve,join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createLocalServer } from '../server.mjs';
-const {chromium}=await import(pathToFileURL(resolve(process.env.PLAYWRIGHT_MODULE||'../discord-alternative/node_modules/playwright/index.mjs')).href);
+const {chromium}=await import(process.env.PLAYWRIGHT_MODULE ? pathToFileURL(resolve(process.env.PLAYWRIGHT_MODULE)).href : 'playwright');
 const output=resolve(process.env.GAME_OUTPUT||'test-results');await mkdir(output,{recursive:true});
 const server=createLocalServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
 try{

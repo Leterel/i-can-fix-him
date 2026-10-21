@@ -26,3 +26,10 @@ Neustart, drei unterschiedliche NPC-Grenzen, Ende und Weiterspielen bestanden.
 Keine JavaScript-Laufzeitfehler, 390px-Layout ohne horizontalen Überlauf.
 Desktop- und Dialogscreenshots visuell geprüft. Belege im aktuellen Chat unter
 outputs/spiel. Kein Touch-Spieltest, kein physisches Handy, kein öffentliches Hosting.
+
+## 21.10.2026 — Öffentliche Quelle vorbereitet
+
+Playwright-Testabhängigkeit fest versioniert und Lockfile ergänzt. Frische npm-ci-
+Installation und echte Chrome-Spielprobe bestanden; alle sechs Modelltests bestehen.
+User hat öffentliche GitHub-Veröffentlichung ausdrücklich erlaubt. Verlaufscan
+auf erkennbare Zugangsdaten und private Datendateien ohne Fund.

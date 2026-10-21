@@ -87,3 +87,7 @@ Die weiteren laufenden Projekte werden durch diese neue Idee nicht ersetzt.
 Spielbarer lokaler Prototyp mit automatisierten Modell- und echten Browsertests.
 Kein fertiges Vollspiel oder kommerzielles Release.
 Die Arbeitstitel und Mechaniken beschreiben Fiktion, keine Anleitung zu realer Gewalt.
+
+Die App selbst braucht keine npm-Pakete. Für reproduzierbare Browsertests kann
+mit npm ci die festgelegte Playwright-Testabhängigkeit installiert werden;
+PLAYWRIGHT_MODULE ist weiterhin eine Alternative für eine vorhandene Installation.
