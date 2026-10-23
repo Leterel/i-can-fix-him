@@ -33,3 +33,15 @@ Playwright-Testabhängigkeit fest versioniert und Lockfile ergänzt. Frische npm
 Installation und echte Chrome-Spielprobe bestanden; alle sechs Modelltests bestehen.
 User hat öffentliche GitHub-Veröffentlichung ausdrücklich erlaubt. Verlaufscan
 auf erkennbare Zugangsdaten und private Datendateien ohne Fund.
+
+## 23.10.2026 — Spielstand und Touchsteuerung
+
+Versionierter lokaler Speicherplatz, Export und Import bis 32 KiB. Vollständige
+Validierung vor Zustandsübernahme: bekannte NPCs, begehbare Positionen, gültige
+Werte und konsistente Konsequenzen. Vertrauen, Schubsen, Cooldown, Dialog,
+Endzustand und Grenzen überleben das Laden. Neustart löscht den Speicherplatz.
+Manuelles Speichern ist erforderlich; Änderungen nach dem Speichern bleiben
+bis zum nächsten Speichern ausschließlich in der laufenden Schicht.
+
+Touchbuttons unterstützen gehaltene Bewegungen und Pointer-Abbruch. Reden und
+Schubsen sind per Button zugänglich. Keine physischen Geräte verwendet.

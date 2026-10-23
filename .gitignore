@@ -1,3 +1,13 @@
 node_modules/
 test-results/
 *.log
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
+betonbezirk-spielstand*.json

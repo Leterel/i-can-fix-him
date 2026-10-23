@@ -22,7 +22,10 @@ nötig, kein externer Server, keine Kosten und keine Konten.
 - WASD oder Pfeiltasten: bewegen. E: mit naher Person sprechen.
 - 1/2/3 oder Dialogbuttons: auswählen. Escape: Gespräch verlassen.
 - F: nichtgrafisch schubsen; senkt Vertrauen, erhöht Chaos/Misstrauen und kostet Energie.
-- „Neu anfangen“ setzt die Schicht zurück. Kein persistenter Spielstand.
+- Lokal speichern und fortsetzen; beim nächsten Öffnen wird der gespeicherte Stand geladen.
+- JSON-Datei exportieren/importieren; ungültige Dateien verändern die laufende Schicht nicht.
+- Touch-Steuerkreuz sowie Reden-/Schubsen-Buttons auf kleinen Touchbildschirmen.
+- „Neu anfangen“ setzt die Schicht zurück und löscht den lokalen Speicherplatz.
 
 Zum ersten Gespräch von der Startposition etwas nach links oben zu Ronny gehen.
 Geld investieren oder eine Grenze setzen; Uwe weiter links oben und Mara links
@@ -77,9 +80,8 @@ für deren Inhalte.
 
 Der Prototyp nutzt Canvas mit prozedural gezeichneter, absichtlich grober
 Pseudo-3D-Draufsicht und DOM-Dialogen. Ein größeres Viertel, Audio, Animationen,
-Speicherstände und ein vollständiger Inhaltsumfang bleiben Weiterentwicklung.
-Desktop-Tastatur ist erforderlich; kleines Bildschirmformat wurde auf Überlauf
-geprüft, Touchsteuerung ist noch nicht implementiert. Keine fremden Assets oder IP.
+ein vollständiger Inhaltsumfang bleiben Weiterentwicklung.
+Desktop-Tastatur und Touchbuttons sind implementiert; kleines Bildschirmformat wurde auf Überlauf geprüft. Keine fremden Assets oder IP.
 Die weiteren laufenden Projekte werden durch diese neue Idee nicht ersetzt.
 
 ## Status
