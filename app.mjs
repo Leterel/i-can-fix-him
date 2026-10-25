@@ -1,9 +1,30 @@
 import {createGame,update,nearest,interact,choose,closeDialog,shove,continueSandbox,buildings,WIDTH,HEIGHT} from './game.mjs';
 import {encodeSave,decodeSave,MAX_SAVE_BYTES,SAVE_KEY} from './save.mjs';
+import {navigationStatus} from './navigation.mjs';
 const $=s=>document.querySelector(s),canvas=$('#game'),ctx=canvas.getContext('2d');
 let state=createGame(),keys={},camera={...state.player},last=performance.now(),signature='';
 const W=1000,H=650;
 const touchPointers=new Map();
+let destination='ronny';
+const svgNode=(tag,attributes)=>{const node=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [name,value]of Object.entries(attributes))node.setAttribute(name,value);return node;};
+const mapPeople=new Map(),mapButtons=new Map();
+for(const b of buildings)$('#map-buildings').append(svgNode('rect',{x:b.x,y:b.y,width:b.w,height:b.h,class:'map-building'}));
+for(const n of state.npcs){
+ const group=svgNode('g',{}),dot=svgNode('circle',{r:27,class:'map-npc'}),letter=svgNode('text',{class:'map-initial',x:0,y:-40});letter.textContent=n.name[0];group.append(dot,letter);$('#map-people').append(group);mapPeople.set(n.id,group);
+ const button=document.createElement('button');button.type='button';button.dataset.destination=n.id;button.textContent=n.name.split(',')[0];button.onclick=()=>{destination=n.id;updateNavigation();};$('#map-destinations').append(button);mapButtons.set(n.id,button);
+}
+$('#district-guide').open=matchMedia('(min-width: 721px)').matches;
+function setText(selector,text){const node=$(selector);if(node.textContent!==text)node.textContent=text;}
+function updateNavigation(){
+ const guide=navigationStatus(state,destination);
+ $('#map-player').setAttribute('cx',state.player.x);$('#map-player').setAttribute('cy',state.player.y);
+ $('#map-target').setAttribute('cx',guide.target.x);$('#map-target').setAttribute('cy',guide.target.y);
+ for(const n of state.npcs){mapPeople.get(n.id).setAttribute('transform',`translate(${n.x} ${n.y})`);mapButtons.get(n.id).setAttribute('aria-pressed',String(n.id===destination));}
+ setText('#route-guide',`${guide.target.name}: ${guide.direction}`);
+ setText('#goal-boundaries',`${guide.boundaries} / 3`);
+ setText('#goal-remaining',guide.remaining.length?`Noch ohne gesetzte Grenze: ${guide.remaining.join(' · ')}.`:'Bei allen vier Personen eine Grenze gesetzt.');
+ setText('#goal-kiosk',guide.kiosk);setText('#goal-fine',guide.fine);
+}
 function project(x,y,z=0){return {x:Math.round(x-camera.x+W/2),y:Math.round((y-camera.y)*.64+H/2-z)};}
 function polygon(points,color){ctx.fillStyle=color;ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fill();}
 function groundRect(x,y,w,h,color){const p=project(x,y),q=project(x+w,y+h);ctx.fillStyle=color;ctx.fillRect(p.x,p.y,q.x-p.x,q.y-p.y);}
@@ -30,7 +51,7 @@ const vignette=ctx.createRadialGradient(W/2,H/2,150,W/2,H/2,650);vignette.addCol
 ctx.fillStyle='#b6c796';ctx.font='10px monospace';ctx.textAlign='left';ctx.fillText(`BEZIRK 08 / ${Math.round(state.player.x)},${Math.round(state.player.y)} / KEIN PLAN IST AUCH EIN PLAN`,16,22);
 const n=nearest(state);$('#prompt').textContent=n?`[ E ] ${n.name} · ${n.role}`:'WASD bewegen · Zu einer Person gehen · E reden';
 }
-function ui(){for(const key of['energy','chaos','suspicion']){$('#'+key).value=state[key];$('#'+key+'-value').textContent=Math.round(state[key]);}$('#money').textContent=state.money+' €';$('#boundaries').textContent=state.boundaries+' / 3';
+function ui(){updateNavigation();for(const key of['energy','chaos','suspicion']){$('#'+key).value=state[key];$('#'+key+'-value').textContent=Math.round(state[key]);}$('#money').textContent=state.money+' €';$('#boundaries').textContent=state.boundaries+' / 3';
 if(signature!==state.log.join('|')){signature=state.log.join('|');$('#log').replaceChildren(...state.log.map(text=>{const li=document.createElement('li');li.textContent=text;return li;}));}
 const d=$('#conversation');if(state.dialog&&!d.open){const npc=state.npcs.find(n=>n.id===state.dialog);$('#npc-name').textContent=npc.name;$('#npc-role').textContent=npc.role;$('#npc-line').textContent=npc.line;$('#npc-memory').textContent=`Vertrauen ${npc.trust} · Begegnung ${npc.visits}${npc.pushes?' · Erinnert sich an '+npc.pushes+' Schubsereien.':''}`;$('#choices').replaceChildren(...npc.choices.map((label,i)=>{const button=document.createElement('button');button.textContent=`${i+1} / ${label}`;button.onclick=()=>{choose(state,i);ui();canvas.focus();};return button;}));keys={};touchPointers.clear();d.showModal();}
 if(!state.dialog&&d.open)d.close();const e=$('#ending');if(state.ending&&!e.open){$('#ending-title').textContent=state.ending;$('#ending-text').textContent=state.notice;$('#continue').hidden=state.energy<=0;keys={};touchPointers.clear();e.showModal();}if(!state.ending&&e.open)e.close();}

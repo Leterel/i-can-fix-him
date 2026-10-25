@@ -45,3 +45,19 @@ bis zum nächsten Speichern ausschließlich in der laufenden Schicht.
 
 Touchbuttons unterstützen gehaltene Bewegungen und Pointer-Abbruch. Reden und
 Schubsen sind per Button zugänglich. Keine physischen Geräte verwendet.
+
+## 25.10.2026 — Navigation und abgeleitete Aufgabenanzeige, Version 0.3.0
+
+Codeeigene SVG-Karte mit Gebäuden, Spieler und NPCs, Zielwahl und dynamischer
+Himmelsrichtung/Gesprächsreichweite. Ein-/ausklappbar, Touchziele mindestens 44px.
+Freiwilliger Schichtplan zeigt Grenzen bei unterschiedlichen NPCs, Kioskstatus,
+Unruhepauschale und kostenlose Pause. Bereits verweigerte Gespräche werden als
+solche bezeichnet; gesunkener Chaoswert öffnet einen geschlossenen Kiosk nicht.
+Kein Teleport, keine neue Spielregel, kein fremdes Asset, keine neue Gewaltmechanik.
+
+11/11 Modelltests und vier echte Chromeproben bestanden. Neue Navigationsprobe
+bewegt den Spieler tatsächlich, prüft Liveposition gegen exportierbaren Zustand,
+Zielwechsel ohne Bewegung, erreichte Gesprächsreichweite, neue Grenze, Reload,
+Tastaturtoggle und Touchkarte bei 390px. Bestehende Smoke-/Save-/Touchregressionen
+bestanden. Desktop-/Mobilaufnahmen visuell geprüft; kein physisches Gerät.
+Saveformat Version 1 bleibt unverändert und enthält keine Navigationseinstellungen.

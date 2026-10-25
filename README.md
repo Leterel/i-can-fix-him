@@ -93,3 +93,20 @@ Die Arbeitstitel und Mechaniken beschreiben Fiktion, keine Anleitung zu realer G
 Die App selbst braucht keine npm-Pakete. Für reproduzierbare Browsertests kann
 mit npm ci die festgelegte Playwright-Testabhängigkeit installiert werden;
 PLAYWRIGHT_MODULE ist weiterhin eine Alternative für eine vorhandene Installation.
+
+## 25.10.2026 — Bezirksplan und freiwillige Ziele (0.3.0)
+
+Ein ein-/ausklappbarer Bezirksplan zeigt Gebäude, vier NPCs und die tatsächliche
+Spielerposition. Ronny, Petra, Mara oder Uwe als Ziel wählen; der Wegweiser nennt
+Himmelsrichtung und Gesprächsreichweite. Keine Teleportation oder automatische
+Wegsuche. Die Karte ist auf Desktop anfangs offen, auf kleinen Bildschirmen zu.
+
+Freiwillige Ziele erklären drei Grenzen bei verschiedenen Personen sowie den
+bestehenden Kiosk-/Misstrauensmechanismus und Maras Pause. Anzeige folgt der
+Schicht, einschließlich bereits geschlossener Kioske und gesperrter Gespräche.
+Saveformat V1 unverändert: alte lokale und exportierte Stände bleiben nutzbar.
+Kartenwahl ist nur eine Ansichtseinstellung des offenen Tabs und kein Savefeld.
+
+Tests: npm test; node test/browser-navigation.mjs; die bestehenden
+browser-smoke.mjs, browser-save.mjs und browser-touch.mjs. Installiertes Chrome
+und Playwright nötig, nicht jedoch für den normalen Spielstart.

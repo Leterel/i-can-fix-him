@@ -1,0 +1,37 @@
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import {resolve,join} from 'node:path';
+import {pathToFileURL} from 'node:url';
+import {createLocalServer} from '../server.mjs';
+import {decodeSave,SAVE_KEY} from '../save.mjs';
+const {chromium}=await import(process.env.PLAYWRIGHT_MODULE?pathToFileURL(resolve(process.env.PLAYWRIGHT_MODULE)).href:'playwright');
+const output=resolve(process.env.GAME_OUTPUT||'test-results/navigation');await mkdir(output,{recursive:true});
+const server=createLocalServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
+try{
+ browser=await chromium.launch({channel:'chrome',headless:true});const page=await browser.newPage({viewport:{width:1440,height:1100}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const origin=`http://127.0.0.1:${server.address().port}`;
+ await page.goto(origin);assert.equal(await page.locator('#district-guide').evaluate(el=>el.open),true);
+ assert.equal(await page.locator('#map-buildings rect').count(),4);assert.equal(await page.locator('#map-people circle').count(),4);
+ assert.equal(Number(await page.locator('#map-player').getAttribute('cx')),710);
+ assert.match(await page.locator('#route-guide').textContent(),/Ronny, 38: Nordwesten/);
+ await page.locator('[data-destination=petra]').click();assert.match(await page.locator('#route-guide').textContent(),/Petra, 51: Nordosten/);
+ assert.equal(Number(await page.locator('#map-player').getAttribute('cx')),710,'selecting map target does not teleport');
+ await page.locator('[data-destination=ronny]').click();await page.locator('#game').focus();
+ const move=async(key,ms)=>{await page.keyboard.down(key);await page.waitForTimeout(ms);await page.keyboard.up(key);};
+ await move('w',700);await move('a',500);assert.match(await page.locator('#route-guide').textContent(),/Gesprächsreichweite/);
+ await page.keyboard.press('e');await page.getByRole('heading',{name:'Ronny, 38',exact:true}).waitFor();await page.keyboard.press('2');
+ assert.equal(await page.locator('#goal-boundaries').textContent(),'1 / 3');assert.doesNotMatch(await page.locator('#goal-remaining').textContent(),/Ronny/);
+ await page.locator('#save').click();const saved=decodeSave(await page.evaluate(key=>localStorage.getItem(key),SAVE_KEY));
+ assert.equal(Number(await page.locator('#map-player').getAttribute('cx')),saved.player.x);
+ await page.screenshot({path:join(output,'08-plan-desktop.png'),fullPage:true});
+ await page.reload();assert.equal(await page.locator('#goal-boundaries').textContent(),'1 / 3');assert.equal(Number(await page.locator('#map-player').getAttribute('cx')),saved.player.x);
+ await page.locator('#district-guide summary').click();assert.equal(await page.locator('#minimap').isVisible(),false);
+ await page.locator('#district-guide summary').press('Enter');assert.equal(await page.locator('#minimap').isVisible(),true);
+ const mobile=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true});const touch=await mobile.newPage();touch.on('pageerror',e=>errors.push(e.message));await touch.goto(origin);
+ assert.equal(await touch.locator('#district-guide').evaluate(el=>el.open),false);
+ await touch.locator('#district-guide summary').tap();await touch.locator('[data-destination=mara]').tap();assert.match(await touch.locator('#route-guide').textContent(),/Mara, 34: Südwesten/);
+ assert.equal(await touch.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await touch.screenshot({path:join(output,'09-plan-mobil.png'),fullPage:true});await mobile.close();
+ await page.locator('#reset').click();assert.equal(await page.locator('#goal-boundaries').textContent(),'0 / 3');assert.match(await page.locator('#goal-kiosk').textContent(),/Kiosk offen/);
+ assert.deepEqual(errors,[]);console.log('PASS: live map follows actual keyboard movement, four NPC/building markers, target switching without teleport, conversation range, actual boundary progress, saved position reload, keyboard toggle and 390px touch map.');
+}finally{await browser?.close();await new Promise(r=>server.close(r));}
