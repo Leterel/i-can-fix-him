@@ -5,7 +5,19 @@ const $=s=>document.querySelector(s),canvas=$('#game'),ctx=canvas.getContext('2d
 let state=createGame(),keys={},camera={...state.player},last=performance.now(),signature='';
 const W=1000,H=650;
 const touchPointers=new Map();
-let destination='ronny';
+let destination='ronny',paused=false;
+function clearInput(){keys={};touchPointers.clear();}
+function focusGame(){if(paused){$('#resume').focus();return;}if(state.dialog){$('#choices button')?.focus();return;}if(state.ending){(state.energy>0?$('#continue'):$('#restart')).focus();return;}canvas.focus();}
+function setPaused(value,reason='Du hast die Schicht angehalten.'){
+ if(value===paused)return;paused=value;clearInput();last=performance.now();
+ $('#pause').setAttribute('aria-pressed',String(paused));
+ if(paused){$('#pause-reason').textContent=reason;$('#pause-dialog').showModal();$('#resume').focus();}
+ else{$('#pause-dialog').close();ui();focusGame();}
+}
+$('#pause').onclick=()=>setPaused(!paused);
+$('#resume').onclick=()=>setPaused(false);
+$('#pause-dialog').addEventListener('cancel',event=>{event.preventDefault();setPaused(false);});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')setPaused(true,'Tab verlassen: Die Schicht wartet, bis du bewusst fortsetzt.');});
 const svgNode=(tag,attributes)=>{const node=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [name,value]of Object.entries(attributes))node.setAttribute(name,value);return node;};
 const mapPeople=new Map(),mapButtons=new Map();
 for(const b of buildings)$('#map-buildings').append(svgNode('rect',{x:b.x,y:b.y,width:b.w,height:b.h,class:'map-building'}));
@@ -35,7 +47,7 @@ function person(n,player=false){const p=project(n.x,n.y),wave=Math.sin(state.tim
 ctx.fillStyle='#1b2927';ctx.fillRect(p.x-8,p.y-20,6,20+shift);ctx.fillRect(p.x+3,p.y-20,6,20-shift);polygon([{x:p.x-13,y:p.y-45+wave},{x:p.x+11,y:p.y-45+wave},{x:p.x+14,y:p.y-18},{x:p.x-10,y:p.y-18}],player?'#d9e871':n.color);ctx.fillStyle='#bfa386';ctx.fillRect(p.x-8,p.y-61+wave,17,18);ctx.fillStyle=player?'#34372a':'#3b362b';ctx.fillRect(p.x-9,p.y-63+wave,18,6);ctx.fillStyle='#29382a';ctx.fillRect(p.x-2,p.y-53+wave,2,2);ctx.fillRect(p.x+5,p.y-53+wave,2,2);
 if(!player){label(n.name,n.x,n.y-120,n.trust<0?'#f1a389':'#dce5b6',11);if(n.trust<0)label('!?',n.x,n.y-155,'#ffb38c',15);}else label('DU',n.x,n.y-120,'#d5e56b',10);
 }
-function render(){camera.x+=(state.player.x-camera.x)*.1;camera.y+=(state.player.y-camera.y)*.1;ctx.fillStyle='#465443';ctx.fillRect(0,0,W,H);
+function render(){if(!paused){camera.x+=(state.player.x-camera.x)*.1;camera.y+=(state.player.y-camera.y)*.1;}ctx.fillStyle='#465443';ctx.fillRect(0,0,W,H);
 groundRect(0,0,WIDTH,HEIGHT,'#78826b');groundRect(30,305,WIDTH-60,360,'#515d51');groundRect(400,30,430,HEIGHT-60,'#596356');
 for(let i=0;i<550;i++){const x=(i*173)%WIDTH,y=(i*337)%HEIGHT,p=project(x,y);ctx.fillStyle=i%3?'#c4c5a313':'#1a2b241c';ctx.fillRect(p.x,p.y,2+i%6,1);}
 for(let y=350;y<HEIGHT;y+=65)groundRect(790,y,5,25,'#c7c391');for(let x=80;x<WIDTH;x+=70)groundRect(x,600,30,5,'#c7c391');
@@ -53,25 +65,25 @@ const n=nearest(state);$('#prompt').textContent=n?`[ E ] ${n.name} · ${n.role}`
 }
 function ui(){updateNavigation();for(const key of['energy','chaos','suspicion']){$('#'+key).value=state[key];$('#'+key+'-value').textContent=Math.round(state[key]);}$('#money').textContent=state.money+' €';$('#boundaries').textContent=state.boundaries+' / 3';
 if(signature!==state.log.join('|')){signature=state.log.join('|');$('#log').replaceChildren(...state.log.map(text=>{const li=document.createElement('li');li.textContent=text;return li;}));}
-const d=$('#conversation');if(state.dialog&&!d.open){const npc=state.npcs.find(n=>n.id===state.dialog);$('#npc-name').textContent=npc.name;$('#npc-role').textContent=npc.role;$('#npc-line').textContent=npc.line;$('#npc-memory').textContent=`Vertrauen ${npc.trust} · Begegnung ${npc.visits}${npc.pushes?' · Erinnert sich an '+npc.pushes+' Schubsereien.':''}`;$('#choices').replaceChildren(...npc.choices.map((label,i)=>{const button=document.createElement('button');button.textContent=`${i+1} / ${label}`;button.onclick=()=>{choose(state,i);ui();canvas.focus();};return button;}));keys={};touchPointers.clear();d.showModal();}
-if(!state.dialog&&d.open)d.close();const e=$('#ending');if(state.ending&&!e.open){$('#ending-title').textContent=state.ending;$('#ending-text').textContent=state.notice;$('#continue').hidden=state.energy<=0;keys={};touchPointers.clear();e.showModal();}if(!state.ending&&e.open)e.close();}
-function status(message){$('#save-status').textContent=message;$('#ending-save-status').textContent=message;}
-function applyState(next){$('#conversation').close();$('#ending').close();state=next;keys={};touchPointers.clear();camera={...state.player};signature='';last=performance.now();ui();canvas.focus();}
+const d=$('#conversation');if(!paused&&state.dialog&&!d.open){const npc=state.npcs.find(n=>n.id===state.dialog);$('#npc-name').textContent=npc.name;$('#npc-role').textContent=npc.role;$('#npc-line').textContent=npc.line;$('#npc-memory').textContent=`Vertrauen ${npc.trust} · Begegnung ${npc.visits}${npc.pushes?' · Erinnert sich an '+npc.pushes+' Schubsereien.':''}`;$('#choices').replaceChildren(...npc.choices.map((label,i)=>{const button=document.createElement('button');button.textContent=`${i+1} / ${label}`;button.onclick=()=>{choose(state,i);ui();canvas.focus();};return button;}));keys={};touchPointers.clear();d.showModal();}
+if(!state.dialog&&d.open)d.close();const e=$('#ending');if(!paused&&state.ending&&!e.open){$('#ending-title').textContent=state.ending;$('#ending-text').textContent=state.notice;$('#continue').hidden=state.energy<=0;keys={};touchPointers.clear();e.showModal();}if(!state.ending&&e.open)e.close();}
+function status(message){$('#save-status').textContent=message;$('#ending-save-status').textContent=message;$('#pause-save-status').textContent=message;}
+function applyState(next){$('#conversation').close();$('#ending').close();state=next;keys={};touchPointers.clear();camera={...state.player};signature='';last=performance.now();ui();focusGame();}
 function save(){try{localStorage.setItem(SAVE_KEY,encodeSave(state));status('Schicht lokal gespeichert. Fortsetzen lädt diesen Stand; Export sichert ihn als Datei.');}catch{status('Speichern nicht möglich. Browser-Speicher gesperrt oder Spielstand außerhalb der Grenzen. Deine laufende Schicht bleibt erhalten.');}}
-function load(automatic=false){try{const stored=localStorage.getItem(SAVE_KEY);if(stored===null){if(!automatic)status('Noch kein lokaler Spielstand. Zuerst lokal speichern oder eine Datei importieren.');return;}const restored=decodeSave(stored);applyState(restored);status('Gespeicherte Schicht fortgesetzt. Es wurde keine Zeit außerhalb des Spiels abgezogen.');}catch{status('Lokaler Spielstand nicht lesbar oder ungültig. Deine laufende Schicht bleibt unverändert.');}}
+function load(automatic=false){try{const stored=localStorage.getItem(SAVE_KEY);if(stored===null){if(!automatic)status('Noch kein lokaler Spielstand. Zuerst lokal speichern oder eine Datei importieren.');return;}const restored=decodeSave(stored);applyState(restored);status(paused?'Gespeicherter Stand geladen. Die Schicht bleibt pausiert.':'Gespeicherte Schicht fortgesetzt. Es wurde keine Zeit außerhalb des Spiels abgezogen.');}catch{status('Lokaler Spielstand nicht lesbar oder ungültig. Deine laufende Schicht bleibt unverändert.');}}
 function exportFile(){try{const content=encodeSave(state),url=URL.createObjectURL(new Blob([content],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='betonbezirk-spielstand-v1.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status('Spielstand exportiert. Die Datei bleibt auf deinem Gerät.');}catch{status('Export nicht möglich. Deine laufende Schicht bleibt erhalten.');}}
 $('#save').onclick=save;$('#load').onclick=()=>load();$('#export').onclick=exportFile;$('#import').onclick=()=>$('#import-file').click();
 $('#import-file').onchange=async event=>{const file=event.target.files[0];event.target.value='';if(!file)return;try{if(file.size>MAX_SAVE_BYTES)throw Error();const restored=decodeSave(await file.text());applyState(restored);status('Datei importiert. Zum Behalten in diesem Browser jetzt lokal speichern.');}catch{status('Import abgelehnt: ungültige Datei, mehr als 32 KiB, falsche Version oder unbegehbare Position. Deine Schicht und dein gespeicherter Stand bleiben unverändert.');}};
-$('#ending-save').onclick=save;$('#ending-export').onclick=exportFile;
+$('#ending-save').onclick=save;$('#ending-export').onclick=exportFile;$('#pause-save').onclick=save;$('#pause-export').onclick=exportFile;$('#pause-load').onclick=()=>load();
 function reset(){applyState(createGame());try{localStorage.removeItem(SAVE_KEY);status('Neue Schicht. Auch der lokale Spielstand wurde gelöscht. Bereits exportierte Dateien bleiben bei dir.');}catch{status('Neue Schicht. Der Browser hat das Löschen des lokalen Speicherplatzes verweigert.');}}
 $('#reset').onclick=reset;$('#restart').onclick=reset;$('#continue').onclick=()=>{continueSandbox(state);ui();canvas.focus();};$('#leave').onclick=()=>{closeDialog(state);ui();canvas.focus();};$('#conversation').addEventListener('cancel',()=>{closeDialog(state);keys={};});$('#ending').addEventListener('cancel',event=>event.preventDefault());
-window.addEventListener('keydown',e=>{const key=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','e','f','1','2','3',' '].includes(key))e.preventDefault();if(e.repeat)return;if(state.dialog){if(['1','2','3'].includes(key)){choose(state,Number(key)-1);ui();canvas.focus();}return;}if(state.ending)return;const mapping={w:'up',arrowup:'up',s:'down',arrowdown:'down',a:'left',arrowleft:'left',d:'right',arrowright:'right'};if(mapping[key])keys[mapping[key]]=true;if(key==='e'){interact(state);ui();}if(key==='f'){shove(state);ui();}});
+window.addEventListener('keydown',e=>{const key=e.key.toLowerCase();if(key==='p'){e.preventDefault();if(!e.repeat)setPaused(!paused);return;}if(paused)return;if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','e','f','1','2','3'].includes(key))e.preventDefault();if(e.repeat)return;if(state.dialog){if(['1','2','3'].includes(key)){choose(state,Number(key)-1);ui();canvas.focus();}return;}if(state.ending)return;const mapping={w:'up',arrowup:'up',s:'down',arrowdown:'down',a:'left',arrowleft:'left',d:'right',arrowright:'right'};if(mapping[key])keys[mapping[key]]=true;if(key==='e'){interact(state);ui();}if(key==='f'){shove(state);ui();}});
 window.addEventListener('keyup',e=>{const mapping={w:'up',arrowup:'up',s:'down',arrowdown:'down',a:'left',arrowleft:'left',d:'right',arrowright:'right'};if(mapping[e.key.toLowerCase()])keys[mapping[e.key.toLowerCase()]]=false;});window.addEventListener('blur',()=>{keys={};touchPointers.clear();});
 function movementKeys(){const merged={...keys};for(const direction of touchPointers.values())merged[direction]=true;return merged;}
 for(const button of document.querySelectorAll('[data-direction]')){
- button.addEventListener('pointerdown',event=>{event.preventDefault();if(state.dialog||state.ending)return;button.setPointerCapture(event.pointerId);touchPointers.set(event.pointerId,button.dataset.direction);});
+ button.addEventListener('pointerdown',event=>{event.preventDefault();if(paused||state.dialog||state.ending)return;button.setPointerCapture(event.pointerId);touchPointers.set(event.pointerId,button.dataset.direction);});
  for(const name of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(name,event=>touchPointers.delete(event.pointerId));
 }
-$('#touch-talk').onclick=()=>{if(state.dialog||state.ending)return;interact(state);ui();};
-$('#touch-shove').onclick=()=>{if(state.dialog||state.ending)return;shove(state);ui();};
-function frame(now){update(state,(now-last)/1000,movementKeys());last=now;render();ui();requestAnimationFrame(frame);}load(true);ui();requestAnimationFrame(frame);
+$('#touch-talk').onclick=()=>{if(paused||state.dialog||state.ending)return;interact(state);ui();};
+$('#touch-shove').onclick=()=>{if(paused||state.dialog||state.ending)return;shove(state);ui();};
+function frame(now){if(!paused)update(state,(now-last)/1000,movementKeys());last=now;render();ui();requestAnimationFrame(frame);}load(true);ui();if(document.visibilityState==='hidden')setPaused(true,'Im Hintergrund geöffnet: Die Schicht wartet auf dich.');requestAnimationFrame(frame);

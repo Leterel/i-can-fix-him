@@ -61,3 +61,16 @@ Zielwechsel ohne Bewegung, erreichte Gesprächsreichweite, neue Grenze, Reload,
 Tastaturtoggle und Touchkarte bei 390px. Bestehende Smoke-/Save-/Touchregressionen
 bestanden. Desktop-/Mobilaufnahmen visuell geprüft; kein physisches Gerät.
 Saveformat Version 1 bleibt unverändert und enthält keine Navigationseinstellungen.
+
+## 26.10.2026 — Pause und sichere Rückkehr
+
+Version 0.4.0 ergänzt P-/Button-Pause, verwirft gehaltene Eingaben und überspringt
+Weltupdate sowie Kamera-Interpolation. last wird auch während Pause aktualisiert,
+Fortsetzen setzt den Zeitanker neu. Visibility-hidden pausiert bis bewusster Rückkehr.
+Dialog, Schichtende, Speichern/Laden/Export bleiben konsistent; Save V1 unverändert.
+11 Node-Tests und fünf echte Chromeproben bestanden, einschließlich Zeit/Cooldown-
+Stillstand, kein Nachholsprung, Input-Clear, Dialog-/Ending-Erhalt, Laden unter Pause,
+Space/P und Touch sowie allen bestehenden Regressionen. Desktop/Mobil geprüft.
+Die automatische Sichtbarkeitsreaktion ist nur per synthetischem Browserereignis
+belegt: isolierte native Headless-/Headed-Tabproben blieben visible und liefen in
+Timeout; eigene Testfenster wurden geschlossen. Keine echte OS-Pausebehauptung.

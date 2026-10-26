@@ -110,3 +110,21 @@ Kartenwahl ist nur eine Ansichtseinstellung des offenen Tabs und kein Savefeld.
 Tests: npm test; node test/browser-navigation.mjs; die bestehenden
 browser-smoke.mjs, browser-save.mjs und browser-touch.mjs. Installiertes Chrome
 und Playwright nötig, nicht jedoch für den normalen Spielstart.
+
+## 26.10.2026 — bewusste Schichtpause (0.4.0)
+
+P und der sichtbare Pauseknopf öffnen ein zugängliches Pausemenü. Spielzeit,
+Bewegungen und Cooldown stehen still; gehaltene Tastatur-/Touchrichtungen werden
+verworfen. Fortsetzen beginnt mit neuem Zeitanker, ohne Hintergrundzeit nachzuholen.
+Der Sichtbarkeitswechsel zu hidden pausiert ebenfalls; Rückkehr bleibt pausiert.
+Dialoge und Schichtberichte bleiben erhalten. Speichern, Laden und Export sind im
+Pausemenü möglich; Laden hebt eine Pause nicht auf. Escape oder P und der
+Fortsetzenknopf setzen bewusst fort. Saveformat V1 bleibt unverändert, Pause ist
+kein persistentes Spielfeld. Tastatur-Space aktiviert normale Buttons wieder.
+
+11 Node-Modelltests und fünf Chromeproben bestanden: neue Pauseprobe plus alle
+bisherigen Spiel-/Save-/Touch-/Kartenproben. Die Pauseprobe verwendet echte Tasten,
+Zeitvergleiche, gespeicherte Schichten und emuliertes Touch. visibilitychange wurde
+in dieser Automationsumgebung als ausdrücklich synthetische Listener-Integration
+getestet: Chrome meldete beim nativen Tabwechsel weiterhin visible. Kein bestätigter
+OS-Tab-/Minimiernachweis. Näheres: VERIFICATION-20261026.md.

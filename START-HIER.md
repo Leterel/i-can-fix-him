@@ -1,10 +1,16 @@
-# I Can Fix Him 0.3.0 starten
+# I Can Fix Him 0.4.0 starten
 
 Mit Node.js 22+ Start-Spiel.cmd öffnen, dann http://127.0.0.1:8841 besuchen.
 Für die App sind keine npm-Pakete erforderlich. Server mit Strg+C beenden.
 
 WASD/Pfeile bewegen, E redet, F schubst, 1–3 wählen Dialogantworten.
 Auf Touchgeräten stehen Steuerkreuz und Aktionsbuttons bereit.
+P oder „Pause“ hält Spielzeit, Bewegung und Cooldown an. Mit „Schicht fortsetzen“
+oder P bewusst weiterlaufen lassen; Escape im Pausemenü setzt ebenfalls fort.
+Beim Verlassen des Tabs pausiert die App. Rückkehr läuft nicht automatisch weiter.
+Speichern, Laden und Export sind auch im Pausemenü möglich. Laden hält die Pause;
+erst bewusstes Fortsetzen öffnet den gespeicherten Dialog oder Schichtbericht.
+Pause selbst ist kein Savefeld: Nach Neuladen lädt nur der manuell gespeicherte Stand.
 „Bezirksplan & freiwillige Ziele“ zeigt dich gelb, dein Ziel orange, Gebäude grau
 und die vier NPCs mit Anfangsbuchstaben. Namen anklicken: Der Wegweiser nennt
 die Richtung oder Gesprächsreichweite. Die Karte bewegt dich nicht automatisch;
